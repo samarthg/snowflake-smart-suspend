@@ -1,6 +1,6 @@
 from setuptools import setup
 
-setup(name='snowflake_smart_suspend',
+setup(name='snowflake-smart-suspend',
       version='0.0.0',
       description='Unix service to suspend the snowflake warehouses smartly to cut the cost.',
       long_description=open('README.md').read(),
