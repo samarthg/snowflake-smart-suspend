@@ -35,9 +35,8 @@ class SmartSuspend(object):
         return self.cursor
 
     def suspend_warehouse(self, warehouse):
-        logger.info(warehouse)
-
-        #self.cursor.execute('suspend warehouse %s' % warehouse)
+        self.cursor.execute('suspend warehouse %s' % warehouse)
+        logger.info('suspended warehouse %s' % warehouse)
 
     def get_running_warehouses(self):
         self.cursor.execute('show warehouses')
