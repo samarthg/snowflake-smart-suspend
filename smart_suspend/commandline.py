@@ -11,7 +11,7 @@ def run_smart_suspend():
     parser.add_argument("-r", "--role", help="""Snowflake role to be used while running the service.""")
     parser.add_argument("-c", "--connection", help="""Snowflake profile to be used form configuration file.""")
     parser.add_argument("-s", "--suspend-after-minutes", type=int, help="""Minutes past which if warehouse is unused will be suspended""")
-    parser.add_argument("-i", "--check-interval", type=int, help="""Interval between two checks to determine state of warehouse""")
+    parser.add_argument("-i", "--check-interval", type=int, help="""Interval between two checks to determine state of warehouse in seconds""")
     parser.add_argument("-w", "--warehouses-to-smart-suspend", dest="warehouses", nargs='+',
                         help="List of warehouses to smart suspend")
     args = parser.parse_args()
