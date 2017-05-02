@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(name='snowflake-smart-suspend',
-      version='0.0.0',
+      version='0.1.0',
       description='Unix service to suspend the snowflake warehouses smartly to cut the cost.',
       long_description=open('README.md').read(),
       url='https://github.com/samarthg/snowflake-smart-suspend',
-      download_url = 'https://github.com/samarthg/snowflake-smart-suspend/archive/v0.0.0.tar.gz',
+      download_url = 'https://github.com/samarthg/snowflake-smart-suspend/archive/v0.1.0.tar.gz',
       author_email='samarth.gahire@gmail.com',
       license='MIT',
       packages=['smart_suspend', 'snowflake_config', 'daemonize'],
