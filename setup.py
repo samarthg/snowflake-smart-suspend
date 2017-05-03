@@ -9,6 +9,11 @@ setup(name='snowflake-smart-suspend',
       author='Samarth Gahire',
       author_email='samarth.gahire@gmail.com',
       license='MIT',
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Developers',
+          'Programming Language :: Python :: 3'
+      ],
       packages=['smart_suspend', 'snowflake_config', 'daemonize'],
       install_requires=[
           'pyasn1',
