@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 log_file_path = '/var/log/smartsuspend/system.log'
 log_dir_path = os.path.dirname(os.path.abspath(log_file_path))
 if not os.path.exists(log_dir_path):
-    os.makedirs()
+    os.makedirs(log_dir_path)
 handler = TimedRotatingFileHandler(log_file_path, when='d')
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
