@@ -2,6 +2,7 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 log_file_path = '/var/log/smartsuspend/system.log'
@@ -17,10 +18,11 @@ logger.addHandler(handler)
 
 class SmartSuspend(object):
 
-    def __init__(self, snowflake_connection, suspend_after_minutes, warehouses_to_smart_suspend):
+    def __init__(self, snowflake_connection, suspend_after_minutes, warehouses_to_smart_suspend, noop=False):
         self.cursor = snowflake_connection.get_snowflake_cursor(True)
         self.suspend_after_minutes = suspend_after_minutes
         self.warehouses_to_smart_suspend = warehouses_to_smart_suspend
+        self.noop = noop
 
     def suspend_running_warehouses(self):
         warehouses_eligible_to_suspend = self.get_warehouses_to_suspend()
@@ -35,8 +37,11 @@ class SmartSuspend(object):
         return self.cursor
 
     def suspend_warehouse(self, warehouse):
-        self.cursor.execute('suspend warehouse %s' % warehouse)
-        logger.info('suspended warehouse %s' % warehouse)
+        if not self.noop:
+            self.cursor.execute('alter warehouse %s SUSPEND' % warehouse)
+            logger.info('suspended warehouse %s' % warehouse)
+        else:
+            logger.info('noop: suspended warehouse %s' % warehouse)
 
     def get_running_warehouses(self):
         self.cursor.execute('show warehouses')

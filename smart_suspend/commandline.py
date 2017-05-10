@@ -14,6 +14,8 @@ def run_smart_suspend():
     parser.add_argument("-i", "--check-interval", type=int, help="""Interval between two checks to determine state of warehouse in seconds""")
     parser.add_argument("-w", "--warehouses-to-smart-suspend", dest="warehouses", nargs='+',
                         help="List of warehouses to smart suspend")
+    parser.add_argument("--noop", help="won't actually suspend the warehouse, but would log if it was eligible for suspension",
+                        action="store_true", default=False)
     args = parser.parse_args()
 
     connection_profile = args.connection if args.connection else 'connections'
@@ -21,6 +23,7 @@ def run_smart_suspend():
     suspend_after_minutes = args.suspend_after_minutes
     check_interval = args.check_interval if args.check_interval else 30
     warehouses_to_smart_suspend = args.warehouses
+    noop = args.noop
     '''sc = SnowflakeConnection(role, connection_profile)
     ss = SmartSuspend(sc, suspend_after_minutes, warehouses_to_smart_suspend)
     ss.suspend_running_warehouses()'''
@@ -38,7 +41,7 @@ def run_smart_suspend():
 
         def run(self):
             sc = SnowflakeConnection(role, connection_profile)
-            ss = SmartSuspend(sc, suspend_after_minutes, warehouses_to_smart_suspend)
+            ss = SmartSuspend(sc, suspend_after_minutes, warehouses_to_smart_suspend, noop)
             while True:
                 ss.suspend_running_warehouses()
                 time.sleep(check_interval)
