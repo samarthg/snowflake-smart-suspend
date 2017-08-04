@@ -4,6 +4,7 @@ from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 from pytz import timezone
 import copy
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class SmartSuspend(object):
     def suspend_warehouse(self, warehouse):
         if not self.noop:
             self.cursor.execute('alter warehouse %s SUSPEND' % warehouse)
-            logger.info('suspended warehouse %s' % warehouse)
+            logger.info('{"name": "%s", "current_time": "%s", "state": "SMART_SUSPENDED"} ' % (warehouse, str(datetime.utcnow())))
         else:
             logger.info('noop: suspended warehouse %s' % warehouse)
 
@@ -59,13 +60,11 @@ class SmartSuspend(object):
         if self.debug:
             self.log_warehouse_details(copy.deepcopy(warehouses_details))
         running_unused_warehouses = [warehouse_info for warehouse_info in warehouses_details if
-                                     (warehouse_info['state']=='STARTED' and warehouse_info['running']==0)]
+                                     (warehouse_info['state']=='STARTED' and warehouse_info['running']==0 and warehouse_info['queued']==0)]
         return running_unused_warehouses
 
     def get_warehouses_to_suspend(self):
         running_warehouses = self.get_running_warehouses()
-        print(running_warehouses)
-
         warehouses_to_suspend = []
         for warehouse_info in running_warehouses:
             resumed_on = warehouse_info['resumed_on']
@@ -78,7 +77,12 @@ class SmartSuspend(object):
 
     def log_warehouse_details(self, warehouses_details):
         for warehouse_info in warehouses_details:
-            warehouse_info['current_time'] = str(datetime.utcnow())
+            logging_info = {}
+            logging_info['current_time'] = str(datetime.utcnow())
             resumed_on = warehouse_info['resumed_on']
-            warehouse_info['resumed_on'] = str(resumed_on.astimezone(timezone('UTC')))
-            logger.info(warehouse_info)
+            logging_info['resumed_on'] = str(resumed_on.astimezone(timezone('UTC')))
+            logging_info['state'] = warehouse_info['state']
+            logging_info['name'] = warehouse_info['name']
+            logging_info['queued'] = warehouse_info['queued']
+            logging_info['running'] = warehouse_info['running']
+            logger.info(json.dumps(logging_info))
