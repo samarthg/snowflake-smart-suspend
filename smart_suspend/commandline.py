@@ -16,6 +16,8 @@ def run_smart_suspend():
                         help="List of warehouses to smart suspend")
     parser.add_argument("--noop", help="won't actually suspend the warehouse, but would log if it was eligible for suspension",
                         action="store_true", default=False)
+    parser.add_argument("-d", help="Enables debug logging", dest="is_debug",
+                        action="store_true", default=False)
     args = parser.parse_args()
 
     connection_profile = args.connection if args.connection else 'connections'
@@ -24,6 +26,7 @@ def run_smart_suspend():
     check_interval = args.check_interval if args.check_interval else 30
     warehouses_to_smart_suspend = args.warehouses
     noop = args.noop
+    is_debug = args.is_debug
     '''sc = SnowflakeConnection(role, connection_profile)
     ss = SmartSuspend(sc, suspend_after_minutes, warehouses_to_smart_suspend)
     ss.suspend_running_warehouses()'''
@@ -41,7 +44,7 @@ def run_smart_suspend():
 
         def run(self):
             sc = SnowflakeConnection(role, connection_profile)
-            ss = SmartSuspend(sc, suspend_after_minutes, warehouses_to_smart_suspend, noop)
+            ss = SmartSuspend(sc, suspend_after_minutes, warehouses_to_smart_suspend, noop, is_debug)
             while True:
                 ss.suspend_running_warehouses()
                 time.sleep(check_interval)

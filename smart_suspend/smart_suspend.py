@@ -1,10 +1,13 @@
 import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
+from datetime import datetime
+from pytz import timezone
+import copy
 
-
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 log_file_path = '/var/log/smartsuspend/system.log'
 log_dir_path = os.path.dirname(os.path.abspath(log_file_path))
 if not os.path.exists(log_dir_path):
@@ -13,16 +16,23 @@ handler = TimedRotatingFileHandler(log_file_path, when='d')
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
-logger.addHandler(handler)
+
+debug_log_file_path = '/var/log/smartsuspend/debug.log'
+debug_handler = TimedRotatingFileHandler(debug_log_file_path, when='d')
+debug_handler.setLevel(logging.DEBUG)
+#debug_handler.setFormatter(formatter)
+
+logger.addHandler(debug_handler)
 
 
 class SmartSuspend(object):
 
-    def __init__(self, snowflake_connection, suspend_after_minutes, warehouses_to_smart_suspend, noop=False):
+    def __init__(self, snowflake_connection, suspend_after_minutes, warehouses_to_smart_suspend, noop=False, debug=False):
         self.cursor = snowflake_connection.get_snowflake_cursor(True)
         self.suspend_after_minutes = suspend_after_minutes
         self.warehouses_to_smart_suspend = warehouses_to_smart_suspend
         self.noop = noop
+        self.debug = debug
 
     def suspend_running_warehouses(self):
         warehouses_eligible_to_suspend = self.get_warehouses_to_suspend()
@@ -46,6 +56,8 @@ class SmartSuspend(object):
     def get_running_warehouses(self):
         self.cursor.execute('show warehouses')
         warehouses_details = self.cursor.fetchall()
+        if self.debug:
+            self.log_warehouse_details(copy.copy(warehouses_details))
         running_unused_warehouses = [warehouse_info for warehouse_info in warehouses_details if
                                      (warehouse_info['state']=='STARTED' and warehouse_info['running']==0)]
         return running_unused_warehouses
@@ -63,3 +75,10 @@ class SmartSuspend(object):
             if minutes_from_current_hour > self.suspend_after_minutes:
                 warehouses_to_suspend.append(warehouse_info['name'])
         return warehouses_to_suspend
+
+    def log_warehouse_details(self, warehouses_details):
+        for warehouse_info in warehouses_details:
+            warehouse_info['current_time'] = str(datetime.utcnow())
+            resumed_on = warehouse_info['resumed_on']
+            warehouse_info['resumed_on'] = str(resumed_on.astimezone(timezone('UTC')))
+            logger.info(warehouse_info)
