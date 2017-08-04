@@ -57,7 +57,7 @@ class SmartSuspend(object):
         self.cursor.execute('show warehouses')
         warehouses_details = self.cursor.fetchall()
         if self.debug:
-            self.log_warehouse_details(copy.copy(warehouses_details))
+            self.log_warehouse_details(copy.deepcopy(warehouses_details))
         running_unused_warehouses = [warehouse_info for warehouse_info in warehouses_details if
                                      (warehouse_info['state']=='STARTED' and warehouse_info['running']==0)]
         return running_unused_warehouses
