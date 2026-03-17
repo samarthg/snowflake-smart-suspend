@@ -16,7 +16,7 @@ setup(name='snowflake-smart-suspend',
       ],
       packages=['smart_suspend', 'snowflake_config', 'daemonize'],
       install_requires=[
-          'pyasn1==0.2.2',
+          'pyasn1==0.6.3',
           'snowflake-connector-python',
           'bumpversion',
           'fabric3',
